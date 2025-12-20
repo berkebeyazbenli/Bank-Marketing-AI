@@ -13,62 +13,62 @@ st.set_page_config(
 )
 
 # Başlık
-st.title("🏦 Banka Vadeli Mevduat Tahmin Sistemi")
-st.markdown("Bu sistem, yapay zeka (SMOTE + MLP) kullanarak müşterilerin **kampanya teklifini kabul edip etmeyeceğini** tahmin eder.")
+st.title("🏦 Bank Term Deposit Prediction System")
+st.markdown("This system predicts whether customers will **accept the campaign offer** using artificial intelligence (SMOTE + MLP).")
 st.markdown("---")
 
 # Modeli Yükle (Yeni kaydettiğimiz isimle!)
 try:
     model = joblib.load('model_smote.pkl')
-    st.sidebar.success("✅ Model Başarıyla Yüklendi!")
+    st.sidebar.success("✅ Model Loaded Successfully!")
 except FileNotFoundError:
-    st.error("🚨 HATA: 'model_smote.pkl' bulunamadı. Lütfen model dosyasının aynı klasörde olduğundan emin olun.")
+    st.error("🚨 ERROR: 'model_smote.pkl' not found. Please ensure the model file is in the same folder.")
     st.stop()
 
 # ==========================================
 # 2. SIDEBAR - KULLANICI VERİ GİRİŞİ
 # ==========================================
-st.sidebar.header("📝 Müşteri Bilgileri")
+st.sidebar.header("📝 Customer Information")
 
 def user_input_features():
     # --- Demografik ---
-    st.sidebar.subheader("1. Demografik Bilgiler")
-    age = st.sidebar.slider("Yaş", 18, 90, 30)
-    job = st.sidebar.selectbox("Meslek", 
+    st.sidebar.subheader("1. Demographic Information")
+    age = st.sidebar.slider("Age", 18, 90, 30)
+    job = st.sidebar.selectbox("Job", 
         ['admin.', 'blue-collar', 'technician', 'services', 'management', 
          'retired', 'entrepreneur', 'self-employed', 'housemaid', 'unemployed', 'student', 'unknown'])
-    marital = st.sidebar.selectbox("Medeni Durum", ['married', 'single', 'divorced', 'unknown'])
-    education = st.sidebar.selectbox("Eğitim Seviyesi", 
+    marital = st.sidebar.selectbox("Marital Status", ['married', 'single', 'divorced', 'unknown'])
+    education = st.sidebar.selectbox("Education Level", 
         ['university.degree', 'high.school', 'basic.9y', 'professional.course', 
          'basic.4y', 'basic.6y', 'unknown', 'illiterate'])
     
     # --- Finansal ---
-    st.sidebar.subheader("2. Finansal Durum")
-    default = st.sidebar.selectbox("Kredi Temerrüdü Var mı?", ['no', 'unknown', 'yes'])
-    housing = st.sidebar.selectbox("Konut Kredisi Var mı?", ['yes', 'no', 'unknown'])
-    loan = st.sidebar.selectbox("Bireysel Kredi Var mı?", ['no', 'yes', 'unknown'])
+    st.sidebar.subheader("2. Financial Status")
+    default = st.sidebar.selectbox("Has Credit Default?", ['no', 'unknown', 'yes'])
+    housing = st.sidebar.selectbox("Has Housing Loan?", ['yes', 'no', 'unknown'])
+    loan = st.sidebar.selectbox("Has Personal Loan?", ['no', 'yes', 'unknown'])
 
     # --- İletişim ---
-    st.sidebar.subheader("3. İletişim Detayları")
-    contact = st.sidebar.selectbox("İletişim Türü", ['cellular', 'telephone'])
-    month = st.sidebar.selectbox("Son İletişim Ayı", ['may', 'jul', 'aug', 'jun', 'nov', 'apr', 'oct', 'sep', 'mar', 'dec'])
-    day_of_week = st.sidebar.selectbox("Son İletişim Günü", ['mon', 'thu', 'wed', 'tue', 'fri'])
-    duration = st.sidebar.number_input("Son Görüşme Süresi (Saniye)", 0, 5000, 200)
-    campaign = st.sidebar.number_input("Mevcut Kampanya İçin Görüşme Sayısı", 1, 50, 1)
+    st.sidebar.subheader("3. Contact Details")
+    contact = st.sidebar.selectbox("Contact Type", ['cellular', 'telephone'])
+    month = st.sidebar.selectbox("Last Contact Month", ['may', 'jul', 'aug', 'jun', 'nov', 'apr', 'oct', 'sep', 'mar', 'dec'])
+    day_of_week = st.sidebar.selectbox("Last Contact Day", ['mon', 'thu', 'wed', 'tue', 'fri'])
+    duration = st.sidebar.number_input("Last Call Duration (Seconds)", 0, 5000, 200)
+    campaign = st.sidebar.number_input("Number of Contacts for Current Campaign", 1, 50, 1)
 
     # --- Geçmiş Veriler ---
-    st.sidebar.subheader("4. Geçmiş Kampanyalar")
-    pdays = st.sidebar.number_input("Önceki Kampanyadan Beri Geçen Gün (999: Aranmadı)", 0, 999, 999)
-    previous = st.sidebar.number_input("Bu Kampanya Öncesi Görüşme Sayısı", 0, 10, 0)
-    poutcome = st.sidebar.selectbox("Önceki Kampanya Sonucu", ['nonexistent', 'failure', 'success'])
+    st.sidebar.subheader("4. Previous Campaigns")
+    pdays = st.sidebar.number_input("Days Since Last Contact (999: Not Contacted)", 0, 999, 999)
+    previous = st.sidebar.number_input("Number of Contacts Before This Campaign", 0, 10, 0)
+    poutcome = st.sidebar.selectbox("Previous Campaign Outcome", ['nonexistent', 'failure', 'success'])
 
     # --- Ekonomik Göstergeler ---
-    st.sidebar.subheader("5. Ekonomik Göstergeler")
-    emp_var_rate = st.sidebar.number_input("İstihdam Değişim Oranı", -4.0, 2.0, -1.8)
-    cons_price_idx = st.sidebar.number_input("Tüketici Fiyat Endeksi", 90.0, 95.0, 92.8)
-    cons_conf_idx = st.sidebar.number_input("Tüketici Güven Endeksi", -55.0, -25.0, -46.2)
-    euribor3m = st.sidebar.number_input("Euribor 3 Ay Oranı", 0.0, 6.0, 1.2)
-    nr_employed = st.sidebar.number_input("Çalışan Sayısı", 4900.0, 5300.0, 5099.1)
+    st.sidebar.subheader("5. Economic Indicators")
+    emp_var_rate = st.sidebar.number_input("Employment Variation Rate", -4.0, 2.0, -1.8)
+    cons_price_idx = st.sidebar.number_input("Consumer Price Index", 90.0, 95.0, 92.8)
+    cons_conf_idx = st.sidebar.number_input("Consumer Confidence Index", -55.0, -25.0, -46.2)
+    euribor3m = st.sidebar.number_input("Euribor 3 Month Rate", 0.0, 6.0, 1.2)
+    nr_employed = st.sidebar.number_input("Number of Employees", 4900.0, 5300.0, 5099.1)
 
     # Verileri DataFrame'e dönüştür
     data = {
@@ -90,10 +90,10 @@ input_df = user_input_features()
 # ==========================================
 
 # Kullanıcı verisini göster
-st.subheader("📋 Müşteri Profili")
+st.subheader("📋 Customer Profile")
 st.dataframe(input_df)
 
-if st.button('🚀 Analiz Et ve Tahminle'):
+if st.button('🚀 Analyze and Predict'):
     
     # --- KRİTİK: Feature Engineering ---
     # Model eğitimi sırasında yaptığımız manuel işlemleri burada da yapmalıyız!
@@ -115,36 +115,36 @@ if st.button('🚀 Analiz Et ve Tahminle'):
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("Tahmin Sonucu")
+            st.subheader("Prediction Result")
             
             # DURUM 1: Güçlü EVET (> %60)
             if prediction_proba > 0.60:
-                st.success("✅ **EVET (Mevduat Hesabı Açacak)**")
+                st.success("✅ **YES (Will Open Deposit Account)**")
                 st.balloons()
                 
             # DURUM 2: GRİ ALAN / KARARSIZ (%40 - %60 Arası)
             elif prediction_proba > 0.40:
-                st.warning("⚠️ **DİKKAT: Müşteri Kararsız (Sınırda)**")
-                st.markdown("*Bu müşteri 'Hayır' diyebilir ancak doğru teklifle ikna edilmeye çok yakın.*")
+                st.warning("⚠️ **WARNING: Customer is Uncertain (Borderline)**")
+                st.markdown("*This customer may say 'No' but is very close to being convinced with the right offer.*")
                 
             # DURUM 3: Net HAYIR (< %40)
             else:
-                st.error("❌ **HAYIR (Teklifi Reddedecek)**")
+                st.error("❌ **NO (Will Reject the Offer)**")
         
         with col2:
-            st.subheader("Güven Skoru")
-            st.info(f"Olasılık: **%{prediction_proba*100:.2f}**")
+            st.subheader("Confidence Score")
+            st.info(f"Probability: **{prediction_proba*100:.2f}%**")
             st.progress(prediction_proba)
             
             # Detaylı Yorumlama
             if prediction_proba > 0.75:
-                st.write("💡 **Yorum:** Çok güçlü bir potansiyel müşteri. Kaçırmayın!")
+                st.write("💡 **Comment:** Very strong potential customer. Don't miss out!")
             elif prediction_proba > 0.60:
-                st.write("💡 **Yorum:** Olumlu görünüyor, standart prosedürü uygulayın.")
+                st.write("💡 **Comment:** Looks positive, follow standard procedure.")
             elif prediction_proba > 0.40:
-                st.write("💡 **Yorum:** **KRİTİK BÖLGE!** Kampanya detayları veya faiz avantajı ile ikna edilebilir.")
+                st.write("💡 **Comment:** **CRITICAL ZONE!** Can be convinced with campaign details or interest rate advantage.")
             else:
-                st.write("💡 **Yorum:** Düşük ihtimal, kaynak harcamaya değmeyebilir.")
+                st.write("💡 **Comment:** Low probability, may not be worth resource allocation.")
                 
     except Exception as e:
-        st.error(f"Bir hata oluştu: {e}")
+        st.error(f"An error occurred: {e}")
