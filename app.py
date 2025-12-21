@@ -19,10 +19,10 @@ st.markdown("---")
 
 # Modeli Yükle (Yeni kaydettiğimiz isimle!)
 try:
-    model = joblib.load('model_smote.pkl')
+    model = joblib.load('bank_marketing_final_model.pkl')
     st.sidebar.success("✅ Model Loaded Successfully!")
 except FileNotFoundError:
-    st.error("🚨 ERROR: 'model_smote.pkl' not found. Please ensure the model file is in the same folder.")
+    st.error("🚨 ERROR: 'bank_marketing_final_model.pkl' not found. Please ensure the model file is in the same folder.")
     st.stop()
 
 # ==========================================
