@@ -14,7 +14,6 @@ st.set_page_config(
 
 # Başlık
 st.title("🏦 Bank Term Deposit Prediction System")
-st.markdown("This system predicts whether customers will **accept the campaign offer** using artificial intelligence (SMOTE + MLP).")
 st.markdown("---")
 
 # Modeli Yükle (Yeni kaydettiğimiz isimle!)
