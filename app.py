@@ -100,8 +100,11 @@ if st.button('🚀 Analyze and Predict'):
     # 1. 'was_contacted' özelliğini türet (pdays != 999 means was contacted before)
     input_df['was_contacted'] = np.where(input_df['pdays'] != 999, 1, 0)
     
-    # 2. 'unknown' string'lerini NaN yap (Pipeline'daki Imputer doldursun diye)
-    input_df = input_df.replace(['unknown', 'nonexistent'], np.nan)
+    # 2. 'unknown' ve 'nonexistent' string'lerini NaN yap (sadece kategorik kolonlarda)
+    # Numeric kolonlara dokunmuyoruz, sadece object/string tipindeki kolonlarda replace yapıyoruz
+    for col in input_df.columns:
+        if input_df[col].dtype == 'object':
+            input_df[col] = input_df[col].replace(['unknown', 'nonexistent'], np.nan)
 
     # --- TAHMİN ---
     try:
