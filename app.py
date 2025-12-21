@@ -97,8 +97,8 @@ if st.button('🚀 Analyze and Predict'):
     # --- KRİTİK: Feature Engineering ---
     # Model eğitimi sırasında yaptığımız manuel işlemleri burada da yapmalıyız!
     
-    # 1. 'previously_contacted' özelliğini türet
-    input_df['previously_contacted'] = np.where(input_df['pdays'] != 999, 1, 0)
+    # 1. 'was_contacted' özelliğini türet (pdays != 999 means was contacted before)
+    input_df['was_contacted'] = np.where(input_df['pdays'] != 999, 1, 0)
     
     # 2. 'unknown' string'lerini NaN yap (Pipeline'daki Imputer doldursun diye)
     input_df = input_df.replace(['unknown', 'nonexistent'], np.nan)
