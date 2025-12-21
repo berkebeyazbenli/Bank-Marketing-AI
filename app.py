@@ -98,13 +98,25 @@ if st.button('🚀 Analyze and Predict'):
     # Model eğitimi sırasında yaptığımız manuel işlemleri burada da yapmalıyız!
     
     # 1. 'was_contacted' özelliğini türet (pdays != 999 means was contacted before)
-    input_df['was_contacted'] = np.where(input_df['pdays'] != 999, 1, 0)
+    input_df['was_contacted'] = np.where(input_df['pdays'] != 999, 1, 0).astype(int)
     
     # 2. 'unknown' ve 'nonexistent' string'lerini NaN yap (sadece kategorik kolonlarda)
     # Numeric kolonlara dokunmuyoruz, sadece object/string tipindeki kolonlarda replace yapıyoruz
     for col in input_df.columns:
         if input_df[col].dtype == 'object':
             input_df[col] = input_df[col].replace(['unknown', 'nonexistent'], np.nan)
+    
+    # 3. DataFrame'in bir kopyasını oluştur ve tip güvenliği sağla
+    # Model pipeline'ının numeric kolonlarda isnan kontrolü yapmasını önlemek için
+    input_df = input_df.copy()
+    
+    # Numeric kolonların tipini kontrol et ve düzelt
+    numeric_cols = ['age', 'duration', 'campaign', 'pdays', 'previous', 
+                    'emp.var.rate', 'cons.price.idx', 'cons.conf.idx', 
+                    'euribor3m', 'nr.employed', 'was_contacted']
+    for col in numeric_cols:
+        if col in input_df.columns:
+            input_df[col] = pd.to_numeric(input_df[col], errors='coerce')
 
     # --- TAHMİN ---
     try:
